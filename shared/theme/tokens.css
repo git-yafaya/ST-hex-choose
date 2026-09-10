@@ -1,0 +1,18 @@
+/* 复用 YaKit 林系主题，卡片尺寸遵循当前主页。 */
+.yakit-theme-forest {
+  color-scheme: light;
+  --yakit-bg: #F9F8F6;
+  --yakit-card: #FFFFFF;
+  --yakit-input: #F9F8F6;
+  --yakit-card-hover: #F9F8F6;
+  --yakit-accent: #627F49;
+  --yakit-accent-hover: #526C3D;
+  --yakit-accent-soft: rgba(98, 127, 73, 0.10);
+  --yakit-brown: #8A684D;
+  --yakit-text: #35372F;
+  --yakit-text-sub: #72766B;
+  --yakit-text-muted: #9A9D93;
+  --yakit-border: rgba(72, 78, 63, 0.12);
+  --yakit-radius-card: 12px;
+  --yakit-radius-window: 20px;
+}

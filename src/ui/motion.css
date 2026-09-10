@@ -1,0 +1,15 @@
+/* 复用主页的 240ms 进退场，退场结束后再关闭原生 dialog。 */
+.panel { --yakit-view-duration: 240ms; }
+.panel[open] { animation: yakit-panel-enter var(--yakit-view-duration) ease-out; }
+.panel[open]::backdrop { animation: yakit-backdrop-enter var(--yakit-view-duration) ease-out; }
+.panel.yakit-panel--closing { animation: yakit-panel-exit var(--yakit-view-duration) ease-in both; }
+.panel.yakit-panel--closing::backdrop { animation: yakit-backdrop-exit var(--yakit-view-duration) ease-in both; }
+.primary-button { transition: background .15s ease, transform .15s ease; }
+.launcher, .icon-button, .secondary-button, .small-actions button { transition: background .18s ease, color .18s ease; }
+@keyframes yakit-panel-enter { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes yakit-backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes yakit-panel-exit { to { opacity: 0; transform: scale(.98); } }
+@keyframes yakit-backdrop-exit { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
