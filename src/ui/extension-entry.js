@@ -2,14 +2,14 @@
 export function attachExtensionEntry(doc, paletteSvg, onOpen) {
   const menu = doc.getElementById('extensionsMenu');
   const toggle = doc.getElementById('extensionsMenuButton');
-  if (!menu || !toggle) throw new Error('未找到酒馆底部扩展菜单，无法添加 YaKit-选色入口。');
+  if (!menu || !toggle) throw new Error('未找到酒馆底部扩展菜单，无法添加选色入口。');
 
   const entry = doc.createElement('div');
   entry.id = 'yakit-hex-choose-entry';
   entry.className = 'list-group-item flex-container flexGap5';
   entry.setAttribute('role', 'button');
   entry.tabIndex = 0;
-  entry.innerHTML = `<span class="extensionsMenuExtensionButton" aria-hidden="true">${paletteSvg}</span><span>YaKit-选色</span>`;
+  entry.innerHTML = `<span class="extensionsMenuExtensionButton" aria-hidden="true">${paletteSvg}</span><span>选色</span>`;
   const svg = entry.querySelector('svg');
   svg.setAttribute('width', '20');
   svg.setAttribute('height', '20');

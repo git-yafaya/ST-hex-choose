@@ -4,7 +4,7 @@
   "name": "YaKit-选色",
   "id": "f1f7b5e0-a191-4c6f-bc70-5998b890a47d",
   "content": "// 先确认最新提交，再按固定提交地址获取脚本，避免分支地址缓存旧版本。\nconst url = new URL('https://api.github.com/repos/git-yafaya/ST-hex-choose/git/ref/heads/main');\nurl.searchParams.set('t', String(Date.now()));\nconst reference = await fetch(url, { cache: 'no-store' });\nif (!reference.ok) throw new Error(`YaKit-选色版本查询失败：HTTP ${reference.status}`);\nconst sha = (await reference.json())?.object?.sha;\nif (typeof sha !== 'string' || !/^[0-9a-f]{40}$/i.test(sha)) throw new Error('YaKit-选色版本查询失败：提交编号无效');\nconst response = await fetch(`https://raw.githubusercontent.com/git-yafaya/ST-hex-choose/${sha}/dist/yakit-hex-choose.js`, { cache: 'no-store' });\nif (!response.ok) throw new Error(`YaKit-选色加载失败：HTTP ${response.status}`);\n\n// 用独立的模块地址在当前助手 iframe 执行，加载结束后释放地址。\nconst moduleUrl = URL.createObjectURL(new Blob([await response.text()], { type: 'text/javascript' }));\ntry {\n  await import(moduleUrl);\n} finally {\n  URL.revokeObjectURL(moduleUrl);\n}\n",
-  "info": "在线加载版 · 每次启用时从仓库获取最新已发布的 YaKit-选色脚本，需要联网。加载完成后从底部扩展菜单打开 YaKit-选色，再点击开始测试。",
+  "info": "在线加载版 · 每次启用时从仓库获取最新已发布的 YaKit-选色脚本，需要联网。加载完成后从底部扩展菜单打开「选色」，再点击开始测试。",
   "button": {
     "enabled": false,
     "buttons": []

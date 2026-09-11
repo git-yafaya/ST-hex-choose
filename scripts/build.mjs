@@ -29,14 +29,14 @@ const content = `// YaKit-选色 v${version}：由 npm run build 生成。\nimpo
 const script = {
   type: 'script', enabled: false, name: 'YaKit-选色',
   id: 'f1f7b5e0-a191-4c6f-bc70-5998b890a47d', content,
-  info: `v${version} · 根据当前酒馆主题和壁纸筛选清晰的正文色域。启用后从底部扩展菜单打开 YaKit-选色，再点击开始测试。`,
+  info: `v${version} · 根据当前酒馆主题和壁纸筛选清晰的正文色域。启用后从底部扩展菜单打开「选色」，再点击开始测试。`,
   button: { enabled: false, buttons: [] }, data: {}, export_with: { data: false, button: false },
 };
 // 在线包只负责在启用时加载仓库发布的脚本，实际内容由线上文件提供。
 const onlineScript = {
   ...script,
   content: await read('src/online-loader.js'),
-  info: '在线加载版 · 每次启用时从仓库获取最新已发布的 YaKit-选色脚本，需要联网。加载完成后从底部扩展菜单打开 YaKit-选色，再点击开始测试。',
+  info: '在线加载版 · 每次启用时从仓库获取最新已发布的 YaKit-选色脚本，需要联网。加载完成后从底部扩展菜单打开「选色」，再点击开始测试。',
 };
 await mkdir(resolve(root, 'dist'), { recursive: true });
 await writeFile(resolve(root, 'dist/YaKit-选色.json'), JSON.stringify(script, null, 2) + '\n');
