@@ -59,4 +59,17 @@ assert.equal(script.enabled, false);
 assert.equal(script.button.enabled, false);
 assert.ok(script.content.includes('data:text/javascript;base64,'));
 assert.ok(!script.content.includes('/home/'));
-console.log('检查通过：对比度、跨零色区、自动亮度、自定义区间、无结果与导入格式。');
+
+// 在线入口与离线包共用脚本身份，发布模块必须和离线内容完全一致。
+const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+assert.ok(script.info.startsWith(`v${pkg.version} ·`));
+const module = await readFile(new URL('../dist/yakit-hex-choose.js', import.meta.url), 'utf8');
+assert.equal(module, script.content + '\n');
+const online = JSON.parse(await readFile(new URL('../dist/YaKit-选色-在线.json', import.meta.url), 'utf8'));
+for (const key of ['id', 'name', 'type', 'enabled', 'button', 'data', 'export_with']) {
+  assert.deepEqual(online[key], script[key]);
+}
+// 允许说明注释，实际执行内容只能加载这一个发布模块。
+assert.equal(online.content.replace(/^\s*\/\/.*$/gm, '').trim(),
+  "import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex-choose.js';");
+console.log('检查通过：对比度、跨零色区、自动亮度、自定义区间、无结果与离线/在线分发格式。');
