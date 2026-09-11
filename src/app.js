@@ -25,8 +25,7 @@ export function start(assets) {
 
   async function run(input) {
     if (busy || disposed) return;
-    result = null;
-    panel.clearResult();
+    // 重测时保留仍有效的结果，完成后再替换，避免预览闪回占位内容。
     busy = true;
     panel.setBusy(true);
     panel.setStatus('正在读取壁纸与聊天背景…');
@@ -40,6 +39,7 @@ export function start(assets) {
       panel.showResult(result);
       panel.setStatus(result.count ? `${result.count} 个色区可用 · 可复制结果` : '没有共同达标的色区，请调整亮度或聊天底色后重测。');
     } catch (error) {
+      result = null;
       if (!disposed) panel.showError(error.message || '测试失败，请重试。');
     } finally {
       busy = false;
