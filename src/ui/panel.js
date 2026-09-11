@@ -1,5 +1,6 @@
 import { attachDialogMotion } from '../../shared/ui/dialog-motion.js';
 import { createControls } from './controls.js';
+import { attachLauncherDrag } from './launcher-drag.js';
 
 /** 弹窗和启动按钮放入同一 Shadow DOM，避免酒馆样式改变表单。 */
 export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCopy }) {
@@ -40,6 +41,7 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   const find = selector => shell.querySelector(selector);
   const dialog = find('dialog');
   const launcher = find('.launcher');
+  const detachLauncherDrag = attachLauncherDrag(launcher);
   const copy = find('.copy-button');
   const test = find('.test-button');
   const output = find('textarea');
@@ -81,7 +83,7 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   copy.addEventListener('click', onCopy);
   return {
     open,
-    destroy() { dialog.close(); host.remove(); },
+    destroy() { detachLauncherDrag(); dialog.close(); host.remove(); },
     readOptions: controls.readOptions,
     setBusy(busy) {
       controls.element.disabled = busy;

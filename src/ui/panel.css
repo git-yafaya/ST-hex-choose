@@ -12,6 +12,7 @@ button { display: inline-flex; align-items: center; justify-content: center; gap
 .icon svg { width: 100%; height: 100%; }
 .launcher { position: fixed; right: 18px; top: 42%; z-index: 2147483000; width: 44px; height: 44px; padding: 10px; border: 1px solid var(--yakit-border); border-radius: 14px; background: var(--yakit-card); color: var(--yakit-accent); box-shadow: 0 3px 16px #35372f1f; }
 .launcher:hover { background: var(--yakit-card-hover); }
+.launcher { touch-action: none; user-select: none; }
 .panel { background: var(--yakit-bg); color: var(--yakit-text); width: min(560px, 92vw); height: min(680px, calc(100dvh - 24px)); max-width: none; max-height: none; min-width: 0; min-height: 0; margin: auto; padding: 0; border: 1px solid var(--yakit-border); border-radius: var(--yakit-radius-window); overflow: hidden; display: flex; flex-direction: column; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
 .panel:not([open]) { display: none; }
 .panel::backdrop { background: rgb(0 0 0 / .35); }

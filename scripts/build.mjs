@@ -41,5 +41,5 @@ const onlineScript = {
 await mkdir(resolve(root, 'dist'), { recursive: true });
 await writeFile(resolve(root, 'dist/YaKit-选色.json'), JSON.stringify(script, null, 2) + '\n');
 await writeFile(resolve(root, 'dist/yakit-hex-choose.js'), content + '\n');
-await writeFile(resolve(root, 'dist/YaKit-选色-在线.json'), JSON.stringify(onlineScript, null, 2) + '\n');
-console.log('已生成 dist/YaKit-选色.json、dist/yakit-hex-choose.js、dist/YaKit-选色-在线.json');
+await writeFile(resolve(root, 'dist/YaKit-选色-自动更新.json'), JSON.stringify(onlineScript, null, 2) + '\n');
+console.log('已生成 dist/YaKit-选色.json、dist/yakit-hex-choose.js、dist/YaKit-选色-自动更新.json');

@@ -65,7 +65,7 @@ const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url
 assert.ok(script.info.startsWith(`v${pkg.version} ·`));
 const module = await readFile(new URL('../dist/yakit-hex-choose.js', import.meta.url), 'utf8');
 assert.equal(module, script.content + '\n');
-const online = JSON.parse(await readFile(new URL('../dist/YaKit-选色-在线.json', import.meta.url), 'utf8'));
+const online = JSON.parse(await readFile(new URL('../dist/YaKit-选色-自动更新.json', import.meta.url), 'utf8'));
 for (const key of ['id', 'name', 'type', 'enabled', 'button', 'data', 'export_with']) {
   assert.deepEqual(online[key], script[key]);
 }
