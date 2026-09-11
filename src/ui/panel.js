@@ -83,7 +83,8 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
     destroy() { detachExtensionEntry(); dialog.close(); host.remove(); },
     readOptions: controls.readOptions,
     setBusy(busy) {
-      controls.element.disabled = busy;
+      // 测试时锁定表单操作，保持控件原有外观。
+      controls.element.inert = busy;
       test.disabled = busy;
       dialog.setAttribute('aria-busy', String(busy));
       test.querySelector('span:last-child').textContent = busy ? '正在测试…' : '开始测试';

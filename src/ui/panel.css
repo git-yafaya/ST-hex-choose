@@ -3,7 +3,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
+button { cursor: pointer; -webkit-user-select: none; user-select: none; }
 button, input, select, textarea { color: var(--yakit-text); }
 button:disabled, input:disabled, select:disabled { cursor: default; opacity: .5; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--yakit-accent); outline-offset: 3px; }
@@ -83,8 +83,11 @@ textarea { height: 170px; resize: vertical; font: 12px/1.7 ui-monospace, SFMono-
 .status { font-size: 12px; color: var(--yakit-text-sub); line-height: 1.4; max-height: 42px; overflow-y: auto; }
 .status.is-error { color: #a43d32; }
 .primary-button { flex-shrink: 0; padding: 10px 22px; border: 0; border-radius: 999px; background: var(--yakit-accent); color: white; font-size: 13px; font-weight: 600; }
-.primary-button:hover:enabled { background: var(--yakit-accent-hover); }
+.primary-button:hover:enabled, .test-button:hover { background: var(--yakit-accent-hover); }
 .primary-button:active:enabled { transform: scale(.97); }
+/* 重测保留按钮外观，并按较长的状态文字预留宽度。 */
+.test-button:disabled { opacity: 1; }
+.test-button > span:last-child { width: 5em; white-space: nowrap; }
 /* 沿用主页透明轨道，悬浮时显示细滑块。 */
 .panel-body, .controls, .preview-content, textarea, .status { scrollbar-width: thin; scrollbar-color: transparent transparent; }
 .panel-body:hover, .controls:hover, .preview-content:hover, textarea:hover, .status:hover { scrollbar-color: rgba(98, 127, 73, .35) transparent; }

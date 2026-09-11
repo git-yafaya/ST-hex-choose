@@ -1,6 +1,6 @@
 {
   "name": "st-hex-choose",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "type": "module",
   "description": "根据酒馆主题与壁纸筛选清晰的正文色域",

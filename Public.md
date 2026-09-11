@@ -49,7 +49,7 @@
 1. `npm run build` 将本项目静态相对导入转换为 `data:` 模块，并内嵌 CSS、SVG；相同内容写入离线 JSON 和 `dist/yakit-hex-choose.js`，将 `src/online-loader.js` 原样写入自动更新 JSON。离线包说明与发布 JS 的版本注释取自 `package.json`。
 2. 酒馆助手导入后需用户启用。离线包直接执行内嵌内容；自动更新包每次启用请求 GitHub 的 `git/ref/heads/main` 接口，附加当次时间戳并使用 `cache: 'no-store'`。取得并校验 40 位提交 SHA 后，从 `raw.githubusercontent.com` 读取该提交下的 `dist/yakit-hex-choose.js`。源码以 `text/javascript` Blob 的独立地址在助手 iframe 内动态导入，完成或抛错后回收地址。发布 JS 的相对依赖已内嵌为 `data:` 模块，因此从 Blob 加载时仍能解析。面板挂载到 `window.parent.document` 的 Shadow DOM，菜单入口添加到宿主的 `#extensionsMenu`。
 3. 入口发出内部销毁事件清理旧实例，在底部扩展菜单创建「选色」菜单项。点击或键盘激活后打开原生 `dialog`，事件继续冒泡，由宿主收起菜单；弹窗关闭时将焦点还给 `#extensionsMenuButton`。打开时触发 `yakit:open` 播放进场动效，结束后清除进场状态，测试时更新内容不会重新启用该状态。
-4. 点击测试时禁用表单并校验输入；等待采样时保留仍有效的上次结果与复制能力，计算完成后直接替换预览。检测失败时清空内部结果与预览并禁用复制；选项或背景改变时仍立即使旧结果失效。读取当前背景，不读取消息正文或调用模型。
+4. 点击测试时用 `inert` 暂时锁定表单、禁用测试按钮并校验输入；等待采样时保留仍有效的上次结果与复制能力，计算完成后直接替换预览。成功或失败后解除表单锁定，保留手动亮度原有的独立禁用状态。检测失败时清空内部结果与预览并禁用复制；选项或背景改变时仍立即使旧结果失效。读取当前背景，不读取消息正文或调用模型。
 5. Canvas 先绘制页面底色和 `#bg1` / `#bg2` 壁纸，再逐个叠加可见 `.mes_text` 的祖先底色；支持透明背景与 Canvas 可处理的 backdrop 滤镜。
 6. 壁纸根据实际 `cover`、`contain`、尺寸、位置和常规平铺设置绘制；视口最长边最多采样 480 像素，在可见正文区域取得最低、最高相对亮度。
 7. 固定 S/L 后逐度计算 HSL 色相的亮度范围。色相亮度与背景亮度范围相交时，最低对比度按 1 处理；否则取最靠近背景的一端。只有完整一度区间达标才合并输出。
@@ -115,6 +115,8 @@
 扩展菜单项沿用宿主的间距、颜色及悬停样式，入口和窗口标题共用 `icons/palette.svg`；图标使用 `currentColor` 跟随所在界面的文字颜色，按 20px 显示。
 
 数字输入框统一隐藏原生上下步进按钮，保留 `type="number"` 的数值校验和键盘操作。
+
+检测期间通过选项 `fieldset` 的原生 `inert` 阻止交互，控件保持原有颜色；自动亮度开启时，手动亮度框仍保持禁用。测试按钮保留原生 `disabled`，忙碌时保持不透明度和悬停色，文字区固定为 `5em`，切换提示时宽度不变。按钮使用 `user-select: none`，避免连续点击选中文字。
 
 正文对比度使用 `select` / `option`，通过 [`appearance: base-select` 与 `::picker(select)`](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select) 定制展开列表。支持该能力时，列表与触发框等宽，沿用林系卡片、边框、悬停和选中配色；下拉使用 240ms 淡入淡出与轻缩放，减少动态效果偏好同时关闭列表和箭头动效。不支持时沿用系统选项列表。选项值、键盘交互、表单禁用和读值继续由原生控件处理。
 
