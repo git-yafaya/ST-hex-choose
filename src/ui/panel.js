@@ -50,8 +50,8 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   let previousFocus;
   const open = () => {
     previousFocus = shadow.activeElement || doc.activeElement;
-    dialog.dispatchEvent(new doc.defaultView.Event('yakit:open'));
     if (!dialog.open) dialog.showModal();
+    dialog.dispatchEvent(new doc.defaultView.Event('yakit:open'));
     find('.close-button').focus();
   };
   const setStatus = message => {

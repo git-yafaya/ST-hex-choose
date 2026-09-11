@@ -1,7 +1,7 @@
 /* 复用主页的 240ms 进退场，退场结束后再关闭原生 dialog。 */
 .panel { --yakit-view-duration: 240ms; }
-.panel[open] { animation: yakit-panel-enter var(--yakit-view-duration) ease-out; }
-.panel[open]::backdrop { animation: yakit-backdrop-enter var(--yakit-view-duration) ease-out; }
+.panel.yakit-panel--opening { animation: yakit-panel-enter var(--yakit-view-duration) ease-out; }
+.panel.yakit-panel--opening::backdrop { animation: yakit-backdrop-enter var(--yakit-view-duration) ease-out; }
 .panel.yakit-panel--closing { animation: yakit-panel-exit var(--yakit-view-duration) ease-in both; }
 .panel.yakit-panel--closing::backdrop { animation: yakit-backdrop-exit var(--yakit-view-duration) ease-in both; }
 .primary-button { transition: background .15s ease, transform .15s ease; }
@@ -32,6 +32,6 @@
 @keyframes yakit-panel-exit { to { opacity: 0; transform: scale(.98); } }
 @keyframes yakit-backdrop-exit { to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  *, *::before, *::after, .panel::backdrop { animation: none !important; transition: none !important; }
   select::picker(select), select::picker-icon { animation: none !important; transition: none !important; }
 }

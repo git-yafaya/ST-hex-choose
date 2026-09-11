@@ -1,12 +1,12 @@
 {
   "name": "st-hex-choose",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "根据酒馆主题与壁纸筛选清晰的正文色域",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs && node scripts/check-motion.mjs"
   },
   "engines": { "node": ">=22" }
 }
