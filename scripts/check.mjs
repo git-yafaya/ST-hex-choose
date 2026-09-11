@@ -69,7 +69,6 @@ const online = JSON.parse(await readFile(new URL('../dist/YaKit-选色-自动更
 for (const key of ['id', 'name', 'type', 'enabled', 'button', 'data', 'export_with']) {
   assert.deepEqual(online[key], script[key]);
 }
-// 允许说明注释，实际执行内容只能加载这一个发布模块。
-assert.equal(online.content.replace(/^\s*\/\/.*$/gm, '').trim(),
-  "import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex-choose.js';");
+// 自动更新包必须使用当前加载器，避免构建时留下旧入口。
+assert.equal(online.content, await readFile(new URL('../src/online-loader.js', import.meta.url), 'utf8'));
 console.log('检查通过：对比度、跨零色区、自动亮度、自定义区间、无结果与离线/在线分发格式。');

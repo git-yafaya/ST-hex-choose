@@ -25,7 +25,7 @@ const css = (await Promise.all(['shared/theme/tokens.css', 'src/ui/panel.css', '
 const names = ['palette', 'close', 'test', 'copy', 'check'];
 const icons = Object.fromEntries(await Promise.all(names.map(async name => [name, await read(`icons/${name}.svg`)])));
 const entry = await embed(resolve(root, 'src/app.js'));
-const content = `// YaKit-选色：由 npm run build 生成。\nimport { start } from ${JSON.stringify(entry)};\nstart(${JSON.stringify({ css, icons })});`;
+const content = `// YaKit-选色 v${version}：由 npm run build 生成。\nimport { start } from ${JSON.stringify(entry)};\nstart(${JSON.stringify({ css, icons })});`;
 const script = {
   type: 'script', enabled: false, name: 'YaKit-选色',
   id: 'f1f7b5e0-a191-4c6f-bc70-5998b890a47d', content,
@@ -35,8 +35,8 @@ const script = {
 // 在线包只负责在启用时加载仓库发布的脚本，实际内容由线上文件提供。
 const onlineScript = {
   ...script,
-  content: "import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex-choose.js';",
-  info: '在线加载版 · 启用时从线上加载 YaKit-选色，需要联网。加载完成后从底部扩展菜单打开 YaKit-选色，再点击开始测试。',
+  content: await read('src/online-loader.js'),
+  info: '在线加载版 · 每次启用时从仓库获取最新已发布的 YaKit-选色脚本，需要联网。加载完成后从底部扩展菜单打开 YaKit-选色，再点击开始测试。',
 };
 await mkdir(resolve(root, 'dist'), { recursive: true });
 await writeFile(resolve(root, 'dist/YaKit-选色.json'), JSON.stringify(script, null, 2) + '\n');

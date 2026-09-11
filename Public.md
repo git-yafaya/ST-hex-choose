@@ -26,6 +26,7 @@
 │   └── ui/dialog-motion.js    # 复用的弹窗进退场状态与 Esc 行为
 ├── src/
 │   ├── app.js                 # 脚本启动、检测调度、失效处理与复制
+│   ├── online-loader.js       # 查询最新提交、加载脚本与模块地址回收
 │   ├── background.js          # 宿主背景状态与 Canvas 采样
 │   ├── color.js               # HSL、亮度、对比度和可用区间计算
 │   └── ui/
@@ -38,13 +39,14 @@
     ├── build.mjs              # 内嵌资源并生成在线、离线产物
     ├── check.mjs              # 算法边界、产物格式与分发一致性检查
     ├── check-motion.mjs       # 弹窗动效状态与连续开关检查
-    └── check-menu.mjs         # 扩展菜单入口、激活与清理检查
+    ├── check-menu.mjs         # 扩展菜单入口、激活与清理检查
+    └── check-loader.mjs       # 更新加载、失败分支与模块回收检查
 ```
 
 ## 加载与数据流
 
-1. `npm run build` 将本项目静态相对导入转换为 `data:` 模块，并内嵌 CSS、SVG；相同内容写入离线 JSON 和 `dist/yakit-hex-choose.js`，另生成只含静态 `import` 的在线 JSON。离线包版本取自 `package.json`。
-2. 酒馆助手导入后需用户启用。离线包直接执行内嵌内容；在线包通过 jsDelivr 加载 GitHub `main` 分支的已构建 JS，再在助手 iframe 内执行。面板挂载到 `window.parent.document` 的 Shadow DOM，菜单入口添加到宿主的 `#extensionsMenu`。
+1. `npm run build` 将本项目静态相对导入转换为 `data:` 模块，并内嵌 CSS、SVG；相同内容写入离线 JSON 和 `dist/yakit-hex-choose.js`，将 `src/online-loader.js` 原样写入自动更新 JSON。离线包说明与发布 JS 的版本注释取自 `package.json`。
+2. 酒馆助手导入后需用户启用。离线包直接执行内嵌内容；自动更新包每次启用请求 GitHub 的 `git/ref/heads/main` 接口，附加当次时间戳并使用 `cache: 'no-store'`。取得并校验 40 位提交 SHA 后，从 `raw.githubusercontent.com` 读取该提交下的 `dist/yakit-hex-choose.js`。源码以 `text/javascript` Blob 的独立地址在助手 iframe 内动态导入，完成或抛错后回收地址。发布 JS 的相对依赖已内嵌为 `data:` 模块，因此从 Blob 加载时仍能解析。面板挂载到 `window.parent.document` 的 Shadow DOM，菜单入口添加到宿主的 `#extensionsMenu`。
 3. 入口发出内部销毁事件清理旧实例，在底部扩展菜单创建「YaKit-选色」菜单项。点击或键盘激活后打开原生 `dialog`，事件继续冒泡，由宿主收起菜单；弹窗关闭时将焦点还给 `#extensionsMenuButton`。打开时触发 `yakit:open` 播放进场动效，结束后清除进场状态，测试时更新内容不会重新启用该状态。
 4. 点击测试时校验表单、清除旧结果并禁用表单；读取当前背景，不读取消息正文或调用模型。
 5. Canvas 先绘制页面底色和 `#bg1` / `#bg2` 壁纸，再逐个叠加可见 `.mes_text` 的祖先底色；支持透明背景与 Canvas 可处理的 backdrop 滤镜。
@@ -58,8 +60,11 @@
 
 | 边界 | 处理 |
 | --- | --- |
-| 在线脚本地址不可达 | 模块加载失败，本次不会创建面板；可重新启用重试或覆盖导入离线包 |
-| 发布后仍读到旧版 | 浏览器或 CDN 缓存尚未更新，后续刷新或重新启用时再加载；不轮询或替换正在运行的实例 |
+| GitHub API 或脚本地址不可达、HTTP 非成功 | 抛出加载错误并停止本次加载；可重新启用重试或覆盖导入离线包 |
+| GitHub API 返回非法 SHA | 拒绝继续请求脚本；仅接受 40 位十六进制提交号 |
+| 自动更新包升级 | v0.1.4 及更早包需覆盖导入新版一次；此后启用时重新查询提交并执行对应脚本 |
+| 查询完成后仓库又发布了提交 | 本次使用查询得到的提交；下次启用再读取新提交 |
+| 获取脚本成功但模块执行失败 | 错误继续抛出，并在 `finally` 中回收 Blob 地址 |
 | 在线、离线包相互切换 | 使用相同脚本 ID 和名称，停用后覆盖导入即可 |
 | 未找到 `#extensionsMenu` 或 `#extensionsMenuButton` | 中止创建界面并报错；待酒馆加载完成后重新启用脚本 |
 | 菜单项键盘操作 | 聚焦后按 Enter 或空格打开面板，其他按键交由宿主处理 |
@@ -121,12 +126,7 @@ UI 使用从 ST-YaKit-chat 复用的 `--yakit-*` 林系变量；20px 窗口圆�
 
 当前未向其他插件提供业务 API。源码的模块导出服务于本脚本组装，内部销毁事件用于清理重复实例，不作为对外契约。
 
-在线导入包使用以下入口，加载模式与[酒馆助手模板](https://github.com/StageDog/tavern_helper_template#利用-jsdelivr-实现前端界面或脚本的自动更新)一致：
-
-```js
-// 启用脚本时加载 main 分支中已发布的构建产物。
-import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex-choose.js';
-```
+自动更新入口的完整可执行代码见 [online-loader.js](src/online-loader.js)，构建时原样嵌入导入包。提交查询使用 [GitHub Get a reference](https://docs.github.com/en/rest/git/refs#get-a-reference)，公开仓库可匿名读取。
 
 ## 当前接入状态
 
@@ -137,7 +137,7 @@ import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex
 | 单张壁纸与可见正文祖先底色叠加 | 已接入 `#bg1` / `#bg2`、`#chat`、`.mes_text` 和 computed style |
 | 自动亮度、手动 S/L、八色自定义与复制 | 已完成 |
 | 失效检测、重复实例清理、pagehide | 已完成 |
-| 在线加载与离线分发 | 已提供两种导入包；在线加载依赖 jsDelivr 的 HTTPS、CORS 和缓存行为 |
+| 在线加载与离线分发 | 已提供两种导入包；自动更新依赖 GitHub REST API、raw 文件的 HTTPS/CORS 及 Blob 模块加载 |
 | 全页面像素级认证 | 未提供；当前为缩小采样估算 |
 | 任意自定义 CSS、伪元素遮罩、混合效果 | 未完整支持；可识别的受检层异常会中止 |
 | 动图、视频背景的全时间段评估 | 未提供；图片按读取时单帧处理 |
@@ -147,12 +147,14 @@ import 'https://cdn.jsdelivr.net/gh/git-yafaya/ST-hex-choose@main/dist/yakit-hex
 
 宿主最低版本沿用酒馆助手声明的 SillyTavern 1.12.13，脚本支持起点设为酒馆助手 4.9.5。底部菜单容器与点击收起行为按 [SillyTavern 1.12.13 的扩展菜单实现](https://github.com/SillyTavern/SillyTavern/blob/1.12.13/public/scripts/extensions.js#L404) 接入。浏览器需支持 `dialog.showModal`、Shadow DOM、Canvas 2D、`data:` ES 模块和 `MutationObserver`；Clipboard API 受限时可手动复制。复制的宿主上下文调用依赖允许创建函数，受 CSP 限制时同样转为手动复制。
 
+自动更新额外需要 Fetch API、Blob、`URL.createObjectURL` 和动态 `import()`，宿主需允许连接 GitHub API/raw 域名及加载 `blob:` 模块。每次启用使用一次匿名 GitHub API 请求，同一出口 IP 的额度由 GitHub 统一计算，通常为 [每小时 60 次](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)；请求被限流时本次加载失败。
+
 ## 开发与验证
 
 1. 使用 Node.js 22+，执行 `npm run build` 生成在线 JSON、离线 JSON 和线上 JS，无需安装依赖。
-2. 执行 `npm run check`，验证算法边界、导入格式、线上与离线内容一致性，以及弹窗动效和扩展菜单入口。`node scripts/check-motion.mjs` 检查进场状态清理、连续开关和无动画分支；`node scripts/check-menu.mjs` 检查菜单项创建、点击与键盘激活、宿主菜单缺失及事件清理。交互检查使用 Node.js 的受控对象验证状态，不替代浏览器中的人工验收。
+2. 执行 `npm run check`，验证算法边界、导入格式、线上与离线内容一致性，以及弹窗动效和扩展菜单入口。`node scripts/check-motion.mjs` 检查进场状态清理、连续开关和无动画分支；`node scripts/check-menu.mjs` 检查菜单项创建、点击与键盘激活、宿主菜单缺失及事件清理；`node scripts/check-loader.mjs` 用受控请求与模块地址执行生成的自动更新入口，验证提交变化、脚本更新、HTTP/非法提交错误及地址回收。这些检查不替代酒馆中的人工验收。
 3. 业务变更只改检测、采样或调度模块；UI 变更只改 `src/ui`、`shared` 与图标，分开处理。
-4. 发布前更新版本与日志，运行构建和检查，将源码及全部 `dist` 产物一同提交并推送到 `main`。在线用户刷新或重新启用时获取更新，可能受网络缓存延迟影响；离线用户需重新下载导入。打包脚本仅服务当前无循环的静态相对导入结构。
+4. 发布前更新版本与日志，运行构建和检查，将源码及全部 `dist` 产物一同提交并推送到 `main`。自动更新用户刷新或重新启用时获取该分支最新提交中的构建产物；离线用户需重新下载导入。打包脚本仅服务当前无循环的静态相对导入结构。
 5. 按 [AGENTS.md](AGENTS.md) 由人工验收，完成在线包覆盖导入、启用、重新加载，从底部扩展菜单打开「YaKit-选色」、测试和复制；核对菜单项的点击与键盘激活、图标显示、菜单收起和关闭面板后的焦点归位，首次测试与重复测试时弹窗和背景是否稳定、下拉的鼠标与键盘选择、窄屏显示和减少动态效果设置。不允许使用 computer use，也不使用其他自动化方式替代验收。
 
 当前改动的交互待人工验收。
