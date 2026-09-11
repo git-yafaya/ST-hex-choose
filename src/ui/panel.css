@@ -5,7 +5,7 @@
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 button, input, select, textarea { color: var(--yakit-text); }
-button:disabled, input:disabled { cursor: default; opacity: .5; }
+button:disabled, input:disabled, select:disabled { cursor: default; opacity: .5; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--yakit-accent); outline-offset: 3px; }
 button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
 .icon { width: 20px; height: 20px; display: inline-flex; flex: 0 0 auto; }
@@ -33,6 +33,19 @@ p { margin: 0; }
 .field-grid > label, .field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--yakit-text-sub); }
 input[type="number"], select, textarea { width: 100%; min-width: 0; border: 1px solid var(--yakit-border); background: var(--yakit-input); border-radius: 8px; padding: 7px 9px; }
 input[type="number"], select { height: 36px; }
+/* 原生下拉沿用林系配色，展开和键盘选择仍由浏览器处理。 */
+@supports (appearance: base-select) {
+  select, select::picker(select) { appearance: base-select; }
+  select { align-items: center; cursor: pointer; }
+  select:hover:enabled { border-color: var(--yakit-accent); }
+  select::picker-icon { color: var(--yakit-text-sub); }
+  select::picker(select) { box-sizing: border-box; width: anchor-size(width); margin-block: 4px; padding: 4px; border: 1px solid var(--yakit-border); border-radius: var(--yakit-radius-card); background: var(--yakit-card); color: var(--yakit-text); font: inherit; }
+  select option { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 9px; border-radius: 8px; cursor: pointer; }
+  select option:checked { background: var(--yakit-accent-soft); color: var(--yakit-accent); }
+  select option:hover, select option:focus-visible { background: var(--yakit-card-hover); }
+  select option:focus-visible { outline: 2px solid var(--yakit-accent); outline-offset: -2px; }
+  select option::checkmark { order: 1; margin-inline-start: auto; color: var(--yakit-accent); }
+}
 /* 隐藏数字输入框的原生上下按钮，保留数字输入和校验。 */
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
