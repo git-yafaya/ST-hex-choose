@@ -22,8 +22,7 @@ assert.equal(dark.count, 8);
 assert.equal(light.count, 8);
 assert.ok(dark.lightness > light.lightness);
 assert.deepEqual(dark.groups[0].ranges, [[345, 360], [0, 15]]);
-assert.ok(dark.text.startsWith('选色（HSL色相）：红345–360或0–15、橙15–40'));
-assert.ok(dark.text.includes(`亮度${dark.lightness}%`));
+assert.equal(dark.text, '选色（HSL色相）：红345–360或0–15、橙15–40、金黄40–65、绿65–165、青165–200、蓝200–260、紫260–300、粉300–345。');
 
 const partial = analyzePalette(options({ auto: false }), background(0.02, 0.04));
 assert.ok(partial.count > 0 && partial.count < 8);

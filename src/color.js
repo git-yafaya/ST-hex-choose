@@ -105,7 +105,7 @@ export function analyzePalette(input, background) {
   }
   const passed = best.groups.filter(group => group.passed);
   const text = passed.length
-    ? `选色（HSL色相）：${passed.map(group => group.name + group.ranges.map(([a, b]) => `${a}–${b}`).join('或')).join('、')}。使用条件：饱和度${options.saturation}%、亮度${best.lightness}%；当前可见聊天区采样对比度≥${options.threshold}:1。`
+    ? `选色（HSL色相）：${passed.map(group => group.name + group.ranges.map(([a, b]) => `${a}–${b}`).join('或')).join('、')}。`
     : '';
   return { ...best, text, count: passed.length, saturation: options.saturation, threshold: options.threshold,
     backgroundCss: background.preview, summary: background.summary };
