@@ -5,7 +5,7 @@
 .panel.yakit-panel--closing { animation: yakit-panel-exit var(--yakit-view-duration) ease-in both; }
 .panel.yakit-panel--closing::backdrop { animation: yakit-backdrop-exit var(--yakit-view-duration) ease-in both; }
 .primary-button { transition: background .15s ease, transform .15s ease; }
-.launcher, .icon-button, .secondary-button, .small-actions button { transition: background .18s ease, color .18s ease; }
+.icon-button, .secondary-button, .small-actions button { transition: background .18s ease, color .18s ease; }
 /* 下拉列表沿用主页的淡入缩放，退出时保留顶层显示直到动效结束。 */
 @supports (appearance: base-select) {
   select::picker(select) {

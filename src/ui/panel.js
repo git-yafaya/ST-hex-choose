@@ -1,8 +1,8 @@
 import { attachDialogMotion } from '../../shared/ui/dialog-motion.js';
 import { createControls } from './controls.js';
-import { attachLauncherDrag } from './launcher-drag.js';
+import { attachExtensionEntry } from './extension-entry.js';
 
-/** 弹窗和启动按钮放入同一 Shadow DOM，避免酒馆样式改变表单。 */
+/** 弹窗放入 Shadow DOM，入口接入酒馆底部扩展菜单。 */
 export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCopy }) {
   const host = doc.createElement('div');
   host.id = 'yakit-hex-choose';
@@ -13,7 +13,6 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   shell.className = 'yakit-theme-forest';
   const icon = name => `<span class="icon" aria-hidden="true">${icons[name]}</span>`;
   shell.innerHTML = `
-    <button class="launcher" type="button" title="YaKit-选色" aria-label="打开 YaKit-选色">${icon('palette')}</button>
     <dialog class="panel" aria-labelledby="panel-title" aria-describedby="panel-description">
       <header class="panel-header">${icon('palette')}<h1 id="panel-title">YaKit-选色</h1><button class="icon-button close-button" type="button" aria-label="关闭">${icon('close')}</button></header>
       <div class="panel-body">
@@ -37,11 +36,8 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
       <footer class="panel-footer"><p class="status" role="status" aria-live="polite">准备就绪</p><button class="primary-button test-button" type="button">${icon('test')}<span>开始测试</span></button></footer>
     </dialog>`;
   shadow.append(style, shell);
-  doc.body.append(host);
   const find = selector => shell.querySelector(selector);
   const dialog = find('dialog');
-  const launcher = find('.launcher');
-  const detachLauncherDrag = attachLauncherDrag(launcher);
   const copy = find('.copy-button');
   const test = find('.test-button');
   const output = find('textarea');
@@ -50,8 +46,8 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   find('.workspace').prepend(controls.element);
   const close = attachDialogMotion(dialog);
   let previousFocus;
-  const open = () => {
-    previousFocus = shadow.activeElement || doc.activeElement;
+  const open = (returnFocus = shadow.activeElement || doc.activeElement) => {
+    previousFocus = returnFocus;
     if (!dialog.open) dialog.showModal();
     dialog.dispatchEvent(new doc.defaultView.Event('yakit:open'));
     find('.close-button').focus();
@@ -68,7 +64,8 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
     output.value = '';
     copy.disabled = true;
   };
-  launcher.addEventListener('click', open);
+  const detachExtensionEntry = attachExtensionEntry(doc, icons.palette, open);
+  doc.body.append(host);
   find('.close-button').addEventListener('click', close);
   dialog.addEventListener('close', () => {
     if (previousFocus?.isConnected) previousFocus.focus();
@@ -83,7 +80,7 @@ export function createPanel(doc, { css, icons, defaults, onTest, onChange, onCop
   copy.addEventListener('click', onCopy);
   return {
     open,
-    destroy() { detachLauncherDrag(); dialog.close(); host.remove(); },
+    destroy() { detachExtensionEntry(); dialog.close(); host.remove(); },
     readOptions: controls.readOptions,
     setBusy(busy) {
       controls.element.disabled = busy;
